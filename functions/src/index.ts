@@ -43,7 +43,7 @@ const getIssues = async () => {
       latestIssueIndex > -1 ? latestIssueIndex : undefined
     );
     if (newIssues.length) {
-      const content = `<ul>${issues
+      const content = `<ul>${newIssues
         .map(
           (issue) =>
             `<li><a href='https://github.com/Expensify/App/issues/${issue.id}'>${issue.title}</a></li>`
@@ -51,10 +51,10 @@ const getIssues = async () => {
         .join("")}</ul>`;
       await sendMail(
         "drminh2807@gmail.com",
-        `[Expensify] ${issues[0].title}`,
+        `[Expensify] ${newIssues[0].title}`,
         content
       );
-      await db.doc("issues/latest").set({id: issues[0].id});
+      await db.doc("issues/latest").set({id: newIssues[0].id});
     }
     logger.info(`Latest issueId ${issues[0]?.id}`);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
