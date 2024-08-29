@@ -1,0 +1,1 @@
+Utility to send email every time a new issue is opened on Github using Firebase Firestore and Firebase Functions

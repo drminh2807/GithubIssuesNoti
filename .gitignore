@@ -1,1 +1,3 @@
 .vercel
+functions/firebase-debug.log
+functions/.env
