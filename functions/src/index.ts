@@ -46,7 +46,7 @@ const getIssues = async () => {
       const content = `<ul>${newIssues
         .map(
           (issue) =>
-            `<li><a href='https://github.com/Expensify/App/issues/${issue.id}'>${issue.title}</a></li>`
+            `<li><h4>${issue.title}</h4><a href='https://github.com/Expensify/App/issues/${issue.id}'>link</a></li>`
         )
         .join("")}</ul>`;
       await sendMail(
@@ -63,4 +63,4 @@ const getIssues = async () => {
   }
 };
 
-exports.getIssuesCrontab = onSchedule("15 * * * *", getIssues);
+exports.getIssuesCrontab = onSchedule("* * * * *", getIssues);

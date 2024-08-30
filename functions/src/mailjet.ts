@@ -13,8 +13,8 @@ export const sendMail = (email: string, subject: string, content: string) => {
     Messages: [
       {
         From: {
-          Email: "drminh2807@gmail.com",
-          Name: "Minh",
+          Email: "minh@spritely.co",
+          Name: "Expensify",
         },
         To: [
           {
