@@ -1,3 +1,6 @@
 .vercel
 functions/firebase-debug.log
 functions/.env
+.env
+.env*.local
+node_modules

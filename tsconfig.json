@@ -13,5 +13,5 @@
   "compileOnSave": true,
   "include": [
     "src"
-  ]
+, "../services/GithubIssue.d.ts"  ]
 }

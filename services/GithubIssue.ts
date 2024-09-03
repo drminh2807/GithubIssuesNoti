@@ -1,4 +1,4 @@
-interface GithubIssue {
+export interface GithubIssue {
   id: string;
   title?: string;
 }
