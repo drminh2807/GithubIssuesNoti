@@ -12,11 +12,10 @@ import * as cheerio from "cheerio";
 // The Cloud Functions for Firebase SDK to set up triggers and logging.
 import {onSchedule} from "firebase-functions/v2/scheduler";
 import {logger} from "firebase-functions";
-
+import axios from "axios";
 // The Firebase Admin SDK to delete inactive users.
 import admin = require("firebase-admin");
 import {getFirestore} from "firebase-admin/firestore";
-import {sendMail} from "./mailjet";
 admin.initializeApp();
 const db = getFirestore();
 const getIssues = async () => {
@@ -43,18 +42,27 @@ const getIssues = async () => {
       latestIssueIndex > -1 ? latestIssueIndex : undefined
     );
     if (newIssues.length) {
-      const content = `<ul>${newIssues
+      const text = newIssues
         .map(
           (issue) =>
-            `<li><h4>${issue.title}</h4><a href='https://github.com/Expensify/App/issues/${issue.id}'>link</a></li>`
+            `- ${issue.title} [link](https://github.com/Expensify/App/issues/${issue.id})`
         )
-        .join("")}</ul>`;
-      await sendMail(
-        "drminh2807@gmail.com",
-        `[Expensify] ${newIssues[0].title}`,
-        content
-      );
-      await db.doc("issues/latest").set({id: newIssues[0].id});
+        .join("\n");
+      const result = await axios.post(process.env.SLACK_WEBHOOK ?? "", {
+        text: text,
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text,
+            },
+          },
+        ],
+      });
+      if (result.status === 200) {
+        await db.doc("issues/latest").set({id: newIssues[0].id});
+      }
     }
     logger.info(`Latest issueId ${issues[0]?.id}`);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
