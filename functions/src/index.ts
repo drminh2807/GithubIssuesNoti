@@ -1,3 +1,4 @@
+import {GithubIssue} from "./GithubIssue";
 /**
  * Import function triggers from their respective submodules:
  *
@@ -14,7 +15,7 @@ import {onSchedule} from "firebase-functions/v2/scheduler";
 import {logger} from "firebase-functions";
 import axios from "axios";
 // The Firebase Admin SDK to delete inactive users.
-import admin = require("firebase-admin");
+import * as admin from "firebase-admin";
 import {getFirestore} from "firebase-admin/firestore";
 admin.initializeApp();
 const db = getFirestore();
@@ -71,4 +72,7 @@ const getIssues = async () => {
   }
 };
 
-exports.getIssuesCrontab = onSchedule("* * * * *", getIssues);
+exports.getIssuesCrontab = onSchedule(
+  {schedule: "* 5-23 * * 1-6", timeZone: "Etc/GMT+7"},
+  getIssues
+);
