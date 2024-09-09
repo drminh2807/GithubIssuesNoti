@@ -1,0 +1,56 @@
+import * as cheerio from "cheerio";
+import axios from "axios";
+import "dotenv/config";
+let latestIssueId;
+
+const getIssues = async () => {
+  try {
+    console.log("1");
+    const res = await fetch("https://github.com/Expensify/App/issues");
+    const text = await res.text();
+    console.log("2");
+    const $ = cheerio.load(text);
+    const issues = [];
+    $("a.v-align-middle").each((index, element) => {
+      const url = $(element).attr("href");
+      const title = $(element).text().trim();
+      const id = url?.split("/").pop();
+      if (id) {
+        issues.push({ id, title });
+      }
+    });
+    const latestIssueIndex = issues.findIndex(
+      (issue) => issue.id === latestIssueId
+    );
+    const newIssues = issues.slice(
+      0,
+      latestIssueIndex > -1 ? latestIssueIndex : undefined
+    );
+    if (newIssues.length) {
+      const text = newIssues
+        .map(
+          (issue) =>
+            `- ${issue.title} https://github.com/Expensify/App/issues/${issue.id}`
+        )
+        .join("\n");
+
+      console.log("3");
+      const result = await axios.post(process.env.SLACK_WEBHOOK ?? "", {
+        text: text,
+      });
+      if (result.status === 200) {
+        console.log("4");
+        latestIssueId = newIssues[0].id;
+      }
+    }
+    console.log(`Latest issueId ${issues[0]?.id}`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error) {
+    console.log(error?.message);
+  }
+};
+
+getIssues();
+setInterval(() => {
+  getIssues();
+}, 60000);
