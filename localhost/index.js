@@ -1,8 +1,37 @@
-import * as cheerio from "cheerio";
-import axios from "axios";
-import "dotenv/config";
-let latestIssueId;
+const cheerio = require("cheerio");
+require("dotenv").config();
+const nodeMailjet = require("node-mailjet");
 
+const sendMail = (email, subject, content) => {
+  const mailjet = nodeMailjet.Client.apiConnect(
+    process.env.MJ_APIKEY_PUBLIC ?? "",
+    process.env.MJ_APIKEY_PRIVATE ?? ""
+  );
+  return mailjet.post("send", { version: "v3.1" }).request({
+    Messages: [
+      {
+        From: {
+          Email: "minh@spritely.co",
+          Name: "Expensify",
+        },
+        To: [
+          {
+            Email: email,
+            Name: email,
+          },
+        ],
+        TemplateID: 6244256,
+        TemplateLanguage: true,
+        Subject: subject,
+        Variables: {
+          CONTENT: content,
+        },
+      },
+    ],
+  });
+};
+
+let latestIssueId;
 const getIssues = async () => {
   try {
     console.log("1");
@@ -27,18 +56,20 @@ const getIssues = async () => {
       latestIssueIndex > -1 ? latestIssueIndex : undefined
     );
     if (newIssues.length) {
-      const text = newIssues
+      const text = `<ul>${newIssues
         .map(
           (issue) =>
-            `- ${issue.title} https://github.com/Expensify/App/issues/${issue.id}`
+            `<li>${issue.title} <a href='https://github.com/Expensify/App/issues/${issue.id}'>link</a></li>`
         )
-        .join("\n");
+        .join("\n")}</ul>`;
 
       console.log("3");
-      const result = await axios.post(process.env.SLACK_WEBHOOK ?? "", {
-        text: text,
-      });
-      if (result.status === 200) {
+      const result = await sendMail(
+        "drminh2807@gmail.com",
+        newIssues[0].title,
+        text
+      );
+      if (result.response.status === 200) {
         console.log("4");
         latestIssueId = newIssues[0].id;
       }
