@@ -1,6 +1,7 @@
 const cheerio = require("cheerio");
 require("dotenv").config();
 const nodeMailjet = require("node-mailjet");
+const fs = require("fs").promises;
 
 const sendMail = (email, subject, content) => {
   const mailjet = nodeMailjet.Client.apiConnect(
@@ -31,7 +32,6 @@ const sendMail = (email, subject, content) => {
   });
 };
 
-let latestIssueId;
 const getIssues = async () => {
   try {
     console.log("1");
@@ -47,6 +47,9 @@ const getIssues = async () => {
       if (id) {
         issues.push({ id, title });
       }
+    });
+    const latestIssueId = await fs.readFile("./lastIssueId.txt", {
+      encoding: "utf-8",
     });
     const latestIssueIndex = issues.findIndex(
       (issue) => issue.id === latestIssueId
@@ -71,7 +74,9 @@ const getIssues = async () => {
       );
       if (result.response.status === 200) {
         console.log("4");
-        latestIssueId = newIssues[0].id;
+        await fs.writeFile("./lastIssueId.txt", newIssues[0].id, {
+          encoding: "utf-8",
+        });
       }
     }
     console.log(`Latest issueId ${issues[0]?.id}`);
@@ -82,6 +87,3 @@ const getIssues = async () => {
 };
 
 getIssues();
-setInterval(() => {
-  getIssues();
-}, 60000);

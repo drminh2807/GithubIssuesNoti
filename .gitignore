@@ -5,3 +5,4 @@ functions/.env
 .env*.local
 node_modules
 .DS_Store
+localhost/lastIssueId.txt
