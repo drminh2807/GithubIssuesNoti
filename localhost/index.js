@@ -2,6 +2,9 @@ const cheerio = require("cheerio");
 require("dotenv").config();
 const nodeMailjet = require("node-mailjet");
 const fs = require("fs").promises;
+const TelegramBot = require("node-telegram-bot-api");
+
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
 
 const sendMail = (email, subject, content) => {
   const mailjet = nodeMailjet.Client.apiConnect(
@@ -59,25 +62,19 @@ const getIssues = async () => {
       latestIssueIndex > -1 ? latestIssueIndex : undefined
     );
     if (newIssues.length) {
-      const text = `<ul>${newIssues
+      const text = newIssues
         .map(
           (issue) =>
-            `<li>${issue.title} <a href='https://github.com/Expensify/App/issues/${issue.id}'>link</a></li>`
+            `- ${issue.title} https://github.com/Expensify/App/issues/${issue.id}`
         )
-        .join("\n")}</ul>`;
+        .join("\n");
 
       console.log("3");
-      const result = await sendMail(
-        "drminh2807@gmail.com",
-        newIssues[0].title,
-        text
-      );
-      if (result.response.status === 200) {
-        console.log("4");
-        await fs.writeFile("./lastIssueId.txt", newIssues[0].id, {
-          encoding: "utf-8",
-        });
-      }
+      await bot.sendMessage(process.env.TELEGRAM_CHAT_ID, text);
+      console.log("4");
+      await fs.writeFile("./lastIssueId.txt", newIssues[0].id, {
+        encoding: "utf-8",
+      });
     }
     console.log(`Latest issueId ${issues[0]?.id}`);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
