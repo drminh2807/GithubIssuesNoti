@@ -62,15 +62,10 @@ const getIssues = async () => {
       latestIssueIndex > -1 ? latestIssueIndex : undefined
     );
     if (newIssues.length) {
-      const text = newIssues
-        .map(
-          (issue) =>
-            `- ${issue.title} https://github.com/Expensify/App/issues/${issue.id}`
-        )
-        .join("\n");
-
-      console.log("3");
-      await bot.sendMessage(process.env.TELEGRAM_CHAT_ID, text);
+      for (const issue of newIssues) {
+        const text = `${issue.title} https://github.com/Expensify/App/issues/${issue.id}`;
+        await bot.sendMessage(process.env.TELEGRAM_CHAT_ID, text);
+      }
       console.log("4");
       await fs.writeFile("./lastIssueId.txt", newIssues[0].id, {
         encoding: "utf-8",
