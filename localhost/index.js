@@ -43,11 +43,11 @@ const getIssues = async () => {
     console.log("2");
     const $ = cheerio.load(text);
     const issues = [];
-    $("a.v-align-middle").each((index, element) => {
+    $("a").each((index, element) => {
       const url = $(element).attr("href");
       const title = $(element).text().trim();
-      const id = url?.split("/").pop();
-      if (id) {
+      const id = url?.split("/Expensify/App/issues/").pop();
+      if (id && Number(id)) {
         issues.push({ id, title });
       }
     });
