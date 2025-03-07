@@ -78,4 +78,6 @@ const getIssues = async () => {
   }
 };
 
-getIssues();
+setInterval(() => {
+  getIssues();
+}, 5000);
