@@ -43,6 +43,7 @@ const sendMail = (email, subject, content) => {
   });
 };
 
+let cachedLatestIssueId = "";
 const getIssues = async () => {
   try {
     console.log("1");
@@ -53,33 +54,25 @@ const getIssues = async () => {
     const issues = [];
     $("a").each((index, element) => {
       const url = $(element).attr("href");
+      const className = $(element).attr("class");
       const title = $(element).text().trim();
       const id = url?.split("/Expensify/App/issues/").pop();
-      if (id && Number(id)) {
+      if (
+        id &&
+        Number(id) &&
+        issues.length === 0 &&
+        Number(id) > Number(cachedLatestIssueId) &&
+        className.includes("TitleHeader")
+      ) {
+        cachedLatestIssueId = id;
         issues.push({ id, title });
       }
     });
-    const latestIssueId = await fs.readFile("./lastIssueId.txt", {
-      encoding: "utf-8",
-    });
-    const latestIssueIndex = issues.findIndex(
-      (issue) => issue.id === latestIssueId
-    );
-    const newIssues = issues.slice(
-      0,
-      latestIssueIndex > -1 ? latestIssueIndex : undefined
-    );
-    if (newIssues.length) {
-      for (const issue of newIssues) {
-        const text = `${issue.title} https://github.com/Expensify/App/issues/${issue.id}`;
-        await bot.sendMessage(process.env.TELEGRAM_CHAT_ID, text);
-      }
-      console.log("4");
-      await fs.writeFile("./lastIssueId.txt", newIssues[0].id, {
-        encoding: "utf-8",
-      });
+    for (const issue of issues) {
+      const text = `${issue.title} https://github.com/Expensify/App/issues/${issue.id}`;
+      bot.sendMessage(process.env.TELEGRAM_CHAT_ID, text);
     }
-    console.log(`Latest issueId ${issues[0]?.id}`);
+    console.log(`Latest issueId ${cachedLatestIssueId}`);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error) {
     console.log(error?.message);
