@@ -61,8 +61,8 @@ const getIssues = async () => {
         id &&
         Number(id) &&
         issues.length === 0 &&
-        Number(id) > Number(cachedLatestIssueId) &&
-        className.includes("TitleHeader")
+        Number(id) > Number(cachedLatestIssueId)
+        // className.includes("TitleHeader")
       ) {
         cachedLatestIssueId = id;
         issues.push({ id, title });
